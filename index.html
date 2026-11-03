@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AFU Bedside Pad</title>
+<style>
+  :root{
+    --bg:#f1f5f9; --card:#fff; --ink:#0f172a; --mute:#64748b; --line:#cbd5e1;
+    --brand:#15803d; --brand-d:#166534; --brand-l:#dcfce7; --warn:#b91c1c; --amber:#fffbeb; --amber-l:#fcd34d;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;touch-action:manipulation}
+  button{font:inherit;cursor:pointer}
+  input,select,textarea{font:inherit;font-size:16px;color:var(--ink)}
+
+  header{position:sticky;top:0;z-index:20;background:#0f172a;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;flex-wrap:wrap}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo b{background:var(--brand);padding:4px 10px;border-radius:8px;font-size:20px;letter-spacing:.06em}
+  .logo h1{margin:0;font-size:17px;line-height:1.1}
+  .logo small{color:#94a3b8;font-size:12px}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .btn{min-height:44px;padding:0 14px;border-radius:10px;border:1px solid #334155;background:#1e293b;color:#e2e8f0;font-weight:600;font-size:14px}
+  .btn.danger{background:#450a0a;border-color:#7f1d1d;color:#fecaca}
+  .btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:700}
+  .btn.done{background:#14532d;border-color:#166534;color:#dcfce7;font-weight:700}
+  #save-status{font-size:12px;color:#94a3b8}
+  #todo{background:#450a0a;border-color:#7f1d1d;color:#fecaca;font-weight:700;font-size:13px}
+  #todo.ok{background:#14532d;border-color:#166534;color:#dcfce7}
+  #done-badge{font-size:12px;font-weight:700;color:#86efac}
+
+  main{max-width:1100px;margin:0 auto;padding:10px}
+  section{background:var(--card);border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin-bottom:10px}
+  h2{margin:0 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#334155}
+  label.l,.l{display:block;font-size:11px;font-weight:700;text-transform:uppercase;color:#475569;margin-bottom:4px}
+  .grid{display:grid;gap:10px}
+  .g-meta{grid-template-columns:1fr}
+  @media(min-width:760px){.g-meta{grid-template-columns:6fr 4fr}.span-all{grid-column:1/-1}}
+  .row{display:flex;flex-wrap:wrap;gap:6px}
+
+  input[type=text],input[type=number],input[type=datetime-local],textarea,select{
+    width:100%;min-height:44px;padding:6px 10px;background:#f8fafc;border:1px solid var(--line);border-radius:10px}
+  textarea{resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);background:#fff}
+  .errbox{border-radius:10px;outline:2px solid var(--warn);outline-offset:3px}
+  input.errbox,select.errbox,textarea.errbox{background:#fef2f2}
+
+  .chip{min-height:44px;min-width:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#f8fafc;color:#334155;font-weight:700;font-size:13px}
+  .chip.wrap{height:auto;padding:8px 12px;text-align:left;line-height:1.25}
+  .chip.on{background:var(--brand);border-color:var(--brand-d);color:#fff}
+  .chip.sm{min-height:38px;font-size:12px;padding:0 10px;background:#fff}
+  .chip.sm.on{background:var(--brand-l);border-color:var(--brand);color:var(--brand-d)}
+  #bed-chips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+
+  .idnote{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:8px 10px;font-size:12px;color:#1e3a8a;line-height:1.4}
+
+  .obs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+  @media(min-width:640px){.obs{grid-template-columns:repeat(4,1fr)}}
+  .obs>div{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px 8px}
+  .obs input,.obs select{background:transparent;border:0;padding:0;min-height:36px;font-size:22px;font-weight:800}
+  .obs select{font-size:14px;font-weight:700}
+  .obs input:disabled{opacity:.3}
+  .bp{display:flex;align-items:center;gap:2px}.bp input{text-align:center}
+  .unable{margin-top:4px;min-height:30px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:11px;font-weight:700;color:#475569}
+  .unable.on{background:#fee2e2;border-color:#fca5a5;color:#7f1d1d}
+
+  .sugar{background:var(--amber);border:1px solid var(--amber-l);border-radius:12px;padding:10px}
+  .sugar-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;margin-bottom:8px;align-items:center}
+  .sugar-grid{display:grid;gap:8px;grid-template-columns:1fr}
+  @media(min-width:640px){.sugar-grid{grid-template-columns:1fr 2fr}}
+  .sugar-val{display:flex;align-items:center;background:#fff;border:1px solid var(--amber-l);border-radius:10px;padding:0 10px}
+  .sugar-val input{border:0;background:transparent;font-size:24px;font-weight:800;min-height:48px}
+  .sugar-val span{font-size:12px;font-weight:700;color:var(--mute);white-space:nowrap}
+  #sugar-flag{display:none;margin-top:8px;background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px}
+
+  .cfs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  @media(min-width:640px){.cfs-grid{grid-template-columns:repeat(3,1fr)}}
+  .cfs-grid .chip{height:auto;min-height:48px;padding:6px 10px;text-align:left;line-height:1.25}
+  .fat-item{border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;background:#f8fafc;margin-bottom:8px}
+  .fat-title{font-size:12px;font-weight:800;color:#334155;margin-bottom:6px}
+  .fat-off{opacity:.4;pointer-events:none}
+  .fat-score{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;background:#e2e8f0;border-radius:10px;padding:8px 12px;font-weight:800}
+  .fat-score .badge{padding:4px 10px;border-radius:6px;color:#fff;background:#64748b;font-size:13px}
+  .fat-score .badge.hi{background:#b91c1c}.fat-score .badge.mid{background:#d97706}.fat-score .badge.lo{background:#15803d}
+
+  .map-wrap{display:grid;gap:10px}
+  @media(min-width:860px){.map-wrap{grid-template-columns:1fr 1fr}}
+  .map-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:6px;display:flex;justify-content:center}
+  #body-svg{width:100%;max-width:460px;height:auto;touch-action:manipulation}
+  .pinlist{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;min-height:160px;max-height:320px;overflow:auto}
+  .pinitem{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:6px;font-size:13px}
+  .dot{flex:none;width:22px;height:22px;border-radius:50%;color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:#475569;margin-top:6px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+
+  .checks{display:grid;gap:8px;grid-template-columns:1fr}
+  @media(min-width:640px){.checks{grid-template-columns:1fr 1fr}}
+  @media(min-width:980px){.checks{grid-template-columns:repeat(4,1fr)}}
+  .check{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-weight:700;font-size:13px}
+  .check input{width:24px;height:24px;accent-color:var(--brand);flex:none}
+  .two{display:grid;gap:12px;grid-template-columns:1fr}
+  @media(min-width:760px){.two{grid-template-columns:1fr 1fr}}
+  .note{font-size:11px;color:var(--mute);line-height:1.4}
+  hr{border:0;border-top:1px solid #e2e8f0;margin:12px 0}
+
+  #pin-modal,#frail-modal{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  #pin-modal.open,#frail-modal.open{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:380px;width:100%;padding:16px}
+  .modal h3{margin:0 0 12px;font-size:14px;text-transform:uppercase;letter-spacing:.05em}
+  .modal .btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+  .modal .btns .btn{background:#e2e8f0;color:#1e293b;border-color:#cbd5e1}
+  .modal .btns .btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .modal .btns .btn.danger{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5;margin-right:auto}
+  #toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;z-index:60;display:none;max-width:90vw;text-align:center}
+
+  .view{display:none}.view.active{display:block}
+  #bed-chips,#d-bed-chips{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .home-btns{display:grid;gap:12px;grid-template-columns:1fr}
+  @media(min-width:640px){.home-btns{grid-template-columns:1fr 1fr}}
+  .bigbtn{min-height:130px;border-radius:16px;border:0;color:#fff;text-align:left;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .bigbtn b{font-size:32px;letter-spacing:.02em}.bigbtn span{font-size:14px;opacity:.9;line-height:1.35}
+  .bigbtn.adm{background:var(--brand)}.bigbtn.dis{background:#1d4ed8}
+  .rec{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 10px;margin-bottom:6px}
+  .rec .bed{font-size:22px;font-weight:800;min-width:48px}.rec .st{flex:1 1 220px;font-size:13px}
+  .base{background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:10px;font-size:13px;line-height:1.5}
+  .base.none{background:#fffbeb;border-color:#fcd34d}
+  .base dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:6px 0 0}.base dt{font-weight:700;color:#334155}.base dd{margin:0}
+  .drow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px 10px;margin-bottom:6px}
+  .drow .t{flex:1 1 260px;font-weight:700;font-size:13px}.drow input[type=text]{flex:1 1 100%}
+  .warnbar{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5;border-radius:8px;padding:8px 10px;font-weight:700;font-size:13px;margin-top:8px}
+
+  #print-sheet{display:none}
+  @media print{
+    @page{size:A4 portrait;margin:7mm}
+    html,body{background:#fff!important}
+    body{color:#000;font-size:8.5pt}
+    header,.view,#pin-modal,#frail-modal,#toast{display:none!important}
+    #print-sheet{display:block!important}
+    .ps h1{font-size:13pt;margin:0}
+    .ps .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:5px}
+    .ps .sticker{flex:none;width:78mm;height:26mm;border:2px dashed #000;text-align:center;font-size:7.5pt;font-weight:700;padding:3px}
+    .ps h2{font-size:8.5pt;margin:6px 0 2px;border-bottom:1px solid #000;padding-bottom:1px;color:#000}
+    .ps table{width:100%;border-collapse:collapse}
+    .ps td,.ps th{border:1px solid #64748b;padding:2px 4px;text-align:left;vertical-align:top;font-size:8.5pt}
+    .ps th{background:#e2e8f0;font-size:7.5pt;text-transform:uppercase}
+    .ps .big{font-size:12pt;font-weight:800}
+    .ps .bad{color:#b91c1c;font-weight:800}
+    .ps .keep,.ps table:not(.pg) tr{break-inside:avoid}
+    /* outer layout table: header (title + addressograph sticker box) repeats on every printed page */
+    .ps table.pg > thead > tr > td, .ps table.pg > tbody > tr > td{border:0;padding:0}
+    .ps table.pg > thead{display:table-header-group}
+    .ps svg{width:100%;max-height:52mm;height:auto}
+    .ps p{margin:2px 0}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><b>AFU</b><div><h1>Bedside Pad</h1><small id="hdr-sub">Admission &amp; discharge &bull; zero patient identifiers held</small></div></div>
+  <button class="btn" id="btn-home" style="display:none" onclick="goHome()">&#8962; Home</button>
+  <div class="actions" id="act-adm" style="display:none">
+    <button class="btn" id="todo" onclick="gotoFirst()">Checking...</button>
+    <span id="done-badge"></span>
+    <span id="save-status"></span>
+    <button class="btn" onclick="saveDraft(true)">Save draft</button>
+    <button class="btn danger" onclick="clearAll()">Clear</button>
+    <button class="btn done" onclick="markComplete()">Mark complete</button>
+    <button class="btn primary" onclick="handlePrint()">Print</button>
+  </div>
+  <div class="actions" id="act-dis" style="display:none">
+    <button class="btn" id="dtodo" onclick="dGotoFirst()">Checking...</button>
+    <span id="ddone-badge" style="font-size:12px;font-weight:700;color:#86efac"></span>
+    <span id="dsave-status" style="font-size:12px;color:#94a3b8"></span>
+    <button class="btn" onclick="dSave(true)">Save</button>
+    <button class="btn danger" onclick="dClear()">Clear form</button>
+    <button class="btn done" onclick="dMarkComplete()">Mark complete</button>
+    <button class="btn primary" onclick="dHandlePrint()">Print</button>
+  </div>
+</header>
+
+<main id="view-home" class="view">
+  <section>
+    <h2>What would you like to do?</h2>
+    <div class="home-btns">
+      <button class="bigbtn adm" onclick="startAdmission()"><b>Admit</b><span>New admission: obs, frailty, 4AT, skin, checklist. Prints the admission sheet.</span></button>
+      <button class="bigbtn dis" onclick="startDischarge(null)"><b>Discharge</b><span>Safe discharge check against the admission baseline. Prints the discharge sheet.</span></button>
+    </div>
+    <div id="adm-draft-note" class="note" style="margin-top:10px"></div>
+  </section>
+  <section>
+    <h2>Beds on this tablet</h2>
+    <div id="rec-list"></div>
+    <p class="note">Records hold clinical data and a bed number only, never a name, CHI or date of birth, and auto-delete after 21 days. Two tablets do not share records: a patient admitted on the other tablet shows no baseline here, so use the admission sheet in the notes. Clear a bed record once the discharge sheet is filed.</p>
+  </section>
+</main>
+
+<main id="view-adm" class="view">
+  <!-- 1 ADMISSION -->
+  <section>
+    <h2>1 &middot; Admission</h2>
+    <div class="grid g-meta">
+      <div id="bed-wrap"><span class="l">Bed *</span><div id="bed-chips"></div></div>
+      <div><label class="l" for="admission-time">Date &amp; time of admission *</label>
+        <input type="datetime-local" id="admission-time"></div>
+      <div class="span-all"><span class="l">Admission source *</span><div class="row" id="source-chips"></div></div>
+      <div class="span-all">
+        <label class="check" id="id-wrap"><input type="checkbox" id="chk-id"><span>Wristband checked against the patient's addressograph sticker (2 identifiers) *</span></label>
+        <div class="idnote" style="margin-top:8px">No patient name, CHI or date of birth is held on this tablet. Affix the addressograph sticker to the printout. Don't type identifiers into any free-text box; the pad will block printing if it spots a CHI-style number.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OBS -->
+  <section>
+    <h2>2 &middot; Nursing moment observations</h2>
+    <div class="obs">
+      <div><label class="l" for="obs-temp">Temp &deg;C</label><input type="number" inputmode="decimal" step="0.1" id="obs-temp" placeholder="36.5"></div>
+      <div><label class="l" for="obs-hr">Pulse /min</label><input type="number" inputmode="numeric" id="obs-hr" placeholder="72"></div>
+      <div><span class="l">BP mmHg</span><div class="bp"><input type="number" inputmode="numeric" id="obs-bps" placeholder="120" aria-label="Systolic"><b>/</b><input type="number" inputmode="numeric" id="obs-bpd" placeholder="80" aria-label="Diastolic"></div></div>
+      <div><label class="l" for="obs-rr">Resp rate /min</label><input type="number" inputmode="numeric" id="obs-rr" placeholder="16"></div>
+      <div><label class="l" for="obs-spo2">SpO&#8322; %</label><input type="number" inputmode="numeric" id="obs-spo2" placeholder="98"></div>
+      <div><label class="l" for="obs-wt">Weight kg</label><input type="number" inputmode="decimal" step="0.1" id="obs-wt" placeholder="70"></div>
+      <div><label class="l" for="obs-o2">O&#8322; delivery</label>
+        <select id="obs-o2">
+          <option value="">Select...</option>
+          <option>Room air</option><option>1-2 L nasal cannula</option><option>3-4 L nasal cannula</option>
+          <option>24% Venturi</option><option>28% Venturi</option><option>35% Venturi</option><option>40%+ Venturi</option><option>Reservoir mask</option>
+        </select></div>
+    </div>
+
+    <div class="sugar">
+      <div class="sugar-top"><span class="l" style="margin:0;color:#78350f">Capillary blood glucose (CBG) * <span style="font-weight:600;text-transform:none">enter a value, or tap Not required; the other tags are optional</span></span><div class="row" id="sugar-chips"></div></div>
+      <div class="sugar-grid">
+        <div class="sugar-val"><input type="number" inputmode="decimal" step="0.1" id="sugar-val" placeholder="0.0" aria-label="CBG"><span>mmol/L</span></div>
+        <input type="text" id="sugar-note" maxlength="120" placeholder="Action / notes (e.g. oral glucose given, recheck at 15 min)">
+      </div>
+      <div id="sugar-flag"></div>
+    </div>
+  </section>
+
+  <!-- 3 CFS -->
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <div><h2 style="margin:0 0 2px">3 &middot; Clinical Frailty Scale (CFS) *</h2>
+        <div class="note">Score the patient's baseline about 2 weeks before this illness, not how they are today. Use the official CFS chart. Intended for older adults; check local guidance for anyone else. Nothing is pre-selected.</div></div>
+      <button type="button" class="unable" id="cfs-unable" onclick="toggleCfsUnable()">CFS not scored</button>
+    </div>
+    <div id="cfs-wrap">
+      <div class="cfs-grid" id="cfs-chips"></div>
+      <div id="cfs-readout" style="margin:8px 0;font-weight:800"></div>
+      <span class="l">Information source *</span>
+      <div class="row" id="cfs-src"></div>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button type="button" class="chip sm" id="frail-open" onclick="openFrail()">Fact-check with FRAIL scale (optional)</button>
+      <span id="frail-summary" style="font-weight:700;font-size:13px"></span>
+    </div>
+    <div id="frail-check" class="note" style="margin-top:4px"></div>
+    <div class="note" style="margin-top:8px">Clinical Frailty Scale &copy; Rockwood et al., Dalhousie University. Only the level names are shown here; score from the official chart.</div>
+  </section>
+
+  <!-- 4 4AT -->
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <div><h2 style="margin:0">4 &middot; 4AT delirium screen *</h2><div class="note">Nothing is pre-selected. Answer all four items, or mark the screen as not performed with a reason.</div></div>
+    </div>
+    <div id="fourat"></div>
+    <div class="fat-score" id="fat-scorebar"><span>4AT score: <span id="fat-total">-</span> / 12</span><span class="badge" id="fat-badge">Not yet scored</span></div>
+    <div id="fat-note" class="note" style="margin-top:6px"></div>
+  </section>
+
+  <!-- reason for unable items (shared) -->
+  <section id="unable-wrap" style="display:none">
+    <label class="l" for="unable-reason">Reason obs / CFS / 4AT unable to be obtained *</label>
+    <input type="text" id="unable-reason" maxlength="160" placeholder="e.g. patient declined, too agitated, too drowsy to engage">
+  </section>
+
+  <!-- 4 BODY MAP -->
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">
+      <div><h2 style="margin:0">5 &middot; Body map &amp; skin *</h2><div class="note">Tap the figure to drop a pin. Tap a pin to edit or delete it.</div></div>
+      <button class="chip sm" onclick="clearPins()" style="color:var(--warn)">Clear pins</button>
+    </div>
+    <div class="map-wrap">
+      <div>
+        <div class="map-box"><svg id="body-svg" viewBox="0 0 400 300" role="img" aria-label="Body map, front and back"></svg></div>
+        <div class="legend" id="legend"></div>
+        <label class="check" id="skin-wrap" style="margin-top:8px"><input type="checkbox" id="chk-skin"><span>Skin fully inspected: no marks found (tick only if you are not pinning anything)</span></label>
+      </div>
+      <div class="pinlist"><div class="l">Marks (<span id="pin-count">0</span>)</div><div id="pin-list"></div></div>
+    </div>
+  </section>
+
+  <!-- 5 SBAR + SAFEGUARDS -->
+  <section>
+    <h2>6 &middot; Rapid SBAR &amp; safeguards</h2>
+    <div class="two">
+      <div>
+        <span class="l">Reason for admission *</span>
+        <div class="row" id="reason-chips" style="margin-bottom:8px"></div>
+        <label class="l" for="sbar-situation">Key clinical context (optional)</label>
+        <textarea id="sbar-situation" rows="3" maxlength="500" placeholder="Anything the reason chips don't capture... (no names or CHI numbers)"></textarea>
+      </div>
+      <div>
+        <span class="l">Baseline mobility *</span>
+        <div class="row" id="mobility-chips"></div>
+      </div>
+    </div>
+    <hr>
+    <span class="l">Mandatory checklist *</span>
+    <div class="checks" id="checks"></div>
+    <hr>
+    <div class="two">
+      <div><label class="l" for="nurse-name">Admitting nurse name / role *</label>
+        <input type="text" id="nurse-name" autocomplete="off" maxlength="60" placeholder="e.g. J. Doe, Staff Nurse"></div>
+      <p class="note" style="align-self:end;margin:0">Drafts stay on this device only and auto-delete after 12 hours. "Mark complete" locks in a timestamp and does not need a printer; any later edit removes it. Only press Clear once the printout is in the notes: clearing cannot be undone.</p>
+    </div>
+  </section>
+</main>
+
+<main id="view-dis" class="view">
+  <section>
+    <h2>1 &middot; Discharge details</h2>
+    <div class="grid g-meta">
+      <div><span class="l">Bed * <span style="text-transform:none;font-weight:600">(a dot = admission record stored on this tablet)</span></span><div id="d-bed-chips"></div></div>
+      <div><label class="l" for="d-time">Date &amp; time of discharge *</label><input type="datetime-local" id="d-time"></div>
+      <div class="span-all" id="d-base"></div>
+      <div class="span-all">
+        <div id="d-basemob-wrap" style="display:none;margin-bottom:8px"><span class="l">Baseline mobility (copy from the admission sheet in the notes) *</span><div class="row" id="d-basemob-chips"></div></div>
+        <label class="check" id="d-id-wrap"><input type="checkbox" id="d-chk-id"><span>Wristband checked against the patient's addressograph sticker (2 identifiers) *</span></label>
+        <label class="check" id="d-base-wrap" style="margin-top:8px"><input type="checkbox" id="d-chk-base"><span id="d-base-label"></span></label>
+        <div class="idnote" style="margin-top:8px">No patient name, CHI or date of birth is held on this tablet. Affix the addressograph sticker to the printout. Don't type identifiers into free-text boxes.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>2 &middot; Observations at discharge</h2>
+    <div class="obs">
+      <div><label class="l" for="d-obs-temp">Temp &deg;C</label><input type="number" inputmode="decimal" step="0.1" id="d-obs-temp" placeholder="36.5"></div>
+      <div><label class="l" for="d-obs-hr">Pulse /min</label><input type="number" inputmode="numeric" id="d-obs-hr" placeholder="72"></div>
+      <div><span class="l">BP mmHg</span><div class="bp"><input type="number" inputmode="numeric" id="d-obs-bps" placeholder="120" aria-label="Systolic"><b>/</b><input type="number" inputmode="numeric" id="d-obs-bpd" placeholder="80" aria-label="Diastolic"></div></div>
+      <div><label class="l" for="d-obs-rr">Resp rate /min</label><input type="number" inputmode="numeric" id="d-obs-rr" placeholder="16"></div>
+      <div><label class="l" for="d-obs-spo2">SpO&#8322; %</label><input type="number" inputmode="numeric" id="d-obs-spo2" placeholder="98"></div>
+      <div><label class="l" for="d-obs-wt">Weight kg</label><input type="number" inputmode="decimal" step="0.1" id="d-obs-wt" placeholder="70"></div>
+      <div><label class="l" for="d-obs-o2">O&#8322; delivery</label>
+        <select id="d-obs-o2">
+          <option value="">Select...</option>
+          <option>Room air</option><option>1-2 L nasal cannula</option><option>3-4 L nasal cannula</option>
+          <option>24% Venturi</option><option>28% Venturi</option><option>35% Venturi</option><option>40%+ Venturi</option><option>Reservoir mask</option>
+        </select></div>
+    </div>
+    <div id="d-unable-wrap" style="display:none">
+      <label class="l" for="d-unable-reason">Reason for any "Unable" / "not performed" item *</label>
+      <input type="text" id="d-unable-reason" maxlength="120" placeholder="e.g. patient declined weight, hoist scales unavailable">
+    </div>
+  </section>
+
+  <section>
+    <h2>3 &middot; 4AT delirium screen at discharge *</h2>
+    <div class="note" style="margin-bottom:8px">Repeat the 4AT before discharge. The admission result is shown in the baseline panel above.</div>
+    <div id="d-fourat"></div>
+    <div class="fat-score" id="d-fat-bar"><span>Total / 12: <span id="d-fat-total">-</span></span><span class="badge" id="d-fat-badge"></span></div>
+    <label class="check" id="d-delir-wrap" style="display:none;margin-top:8px"><input type="checkbox" id="d-delir-ack"><span>4AT is 4 or above: medical team informed and they confirm discharge is still appropriate *</span></label>
+  </section>
+
+  <section>
+    <h2>4 &middot; Function and skin</h2>
+    <span class="l">Mobility now *</span><div class="row" id="d-mob-chips"></div>
+    <div id="d-mob-cmp" class="note" style="margin:6px 0"></div>
+    <span class="l" style="margin-top:8px">Function compared with admission baseline *</span><div class="row" id="d-func-chips"></div>
+    <div id="d-func-warn"></div>
+    <div id="d-func-detail" style="display:none;margin-top:8px">
+      <input type="text" id="d-func-reason" maxlength="160" placeholder="What has changed and the plan (e.g. now 2-assist, care package increased)">
+      <label class="check" id="d-func-agreed-wrap" style="margin-top:8px"><input type="checkbox" id="d-func-agreed"><span>Reduced function discussed with the medical / therapy team and discharge plan agreed *</span></label>
+    </div>
+    <hr>
+    <span class="l">Skin at discharge (compare with the admission body map) *</span><div class="row" id="d-skin-chips"></div>
+    <input type="text" id="d-skin-text" maxlength="160" style="display:none;margin-top:8px" placeholder="Where, what, action taken (e.g. sacrum grade 2, dressing applied, district nurse informed)">
+  </section>
+
+  <section>
+    <h2>5 &middot; Destination and follow-up</h2>
+    <span class="l">Destination *</span><div class="row" id="d-dest-chips"></div>
+    <span class="l" style="margin-top:10px">Transport *</span><div class="row" id="d-trans-chips"></div>
+    <span class="l" style="margin-top:10px">Follow-up arranged * <span style="text-transform:none;font-weight:600">(choose all that apply)</span></span><div class="row" id="d-follow-chips"></div>
+    <label class="l" for="d-plan" style="margin-top:10px">Notes (optional)</label>
+    <input type="text" id="d-plan" maxlength="160" placeholder="Anything the next person needs to know">
+  </section>
+
+  <section>
+    <h2>6 &middot; Safe discharge checklist *</h2>
+    <div class="note" style="margin-bottom:8px" id="d-ver"></div>
+    <div id="d-checklist"></div>
+    <hr>
+    <div class="two">
+      <div><label class="l" for="d-nurse">Discharging nurse name / role *</label>
+        <input type="text" id="d-nurse" autocomplete="off" maxlength="60" placeholder="e.g. J. Doe, Staff Nurse"></div>
+      <p class="note" style="align-self:end;margin:0">Saved on this device per bed and auto-deleted after 21 days. "Mark complete" timestamps the check; any later edit removes it. Print only becomes available when nothing is outstanding.</p>
+    </div>
+  </section>
+</main>
+
+<div id="pin-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <h3 id="pin-title">Add mark</h3>
+    <label class="l" for="pin-type">Finding</label>
+    <select id="pin-type"></select>
+    <div style="height:10px"></div>
+    <label class="l" for="pin-desc">Location / details</label>
+    <input type="text" id="pin-desc" maxlength="80" placeholder="e.g. Sacrum, grade 2; R forearm IV">
+    <div class="btns">
+      <button class="btn danger" id="pin-del" onclick="deletePin()">Delete</button>
+      <button class="btn" onclick="closePin()">Cancel</button>
+      <button class="btn primary" onclick="savePin()">Save</button>
+    </div>
+  </div>
+</div>
+<div id="frail-modal" role="dialog" aria-modal="true">
+  <div class="modal" style="max-width:560px;max-height:92vh;overflow:auto">
+    <h3>FRAIL scale: optional fact-check</h3>
+    <p class="note" style="margin:0 0 10px">Ask about how the patient usually is, before this illness. Ask the patient, or a carer if the patient can't answer. Answer all five to save. This is a quick screen, not the CFS, and it never replaces the CFS score above.</p>
+    <div id="frail-body"></div>
+    <div class="fat-score" style="margin-top:8px"><span>FRAIL score: <span id="frail-total">-</span> / 5</span><span class="badge" id="frail-badge">Not yet scored</span></div>
+    <div class="btns">
+      <button class="btn danger" onclick="frailRemove()">Remove result</button>
+      <button class="btn" onclick="closeFrail()">Cancel</button>
+      <button class="btn primary" id="frail-save" onclick="saveFrail()">Save</button>
+    </div>
+    <div class="note" style="margin-top:8px">FRAIL scale: Morley JE et al. Wording as published in the public FRAIL screening tool.</div>
+  </div>
+</div>
+<div id="toast"></div>
+<div id="print-sheet" class="ps"></div>
+
+<script>
+/* ================= config ================= */
+const BEDS = [1,2,3,4,5,6,7,8,9,10,11,12,14,15];   // AFU beds (no bed 13); edit this list if the layout changes
+const DECISION_SUPPORT = true;     // false = record answers only: no CBG warning banner, no 4AT total/interpretation
+const SOURCES = ['ED','MAU'];      // the only areas AFU currently admits from
+const REASONS = ['Frailty / off legs','Fall','Delirium / confusion','Infection','Social / care breakdown','Other'];
+const MOBILITY = ['Independent','1-assist','2-assist','Hoist','Non-weight bearing'];
+/* Clinical Frailty Scale: level names only. Descriptions are not reproduced; staff score from the official chart. */
+const CFS = [[1,'Very fit'],[2,'Fit'],[3,'Managing well'],[4,'Living with very mild frailty'],[5,'Living with mild frailty'],
+  [6,'Living with moderate frailty'],[7,'Living with severe frailty'],[8,'Living with very severe frailty'],[9,'Terminally ill']];
+const CFS_SRC = ['Patient','Family / carer','Care home / care records','GP / medical records'];
+/* FRAIL scale (optional cross-check). Wording per the public FRAIL screening tool; 0 robust, 1-2 pre-frail, 3-5 frail. */
+const FRAIL = [
+  {k:'fat',title:'Fatigue',q:'How much of the time during the past 4 weeks did you feel tired?',
+    opts:[['All of the time',1],['Most of the time',1],['Some of the time',0],['A little of the time',0],['None of the time',0]]},
+  {k:'res',title:'Resistance',q:'By yourself and not using aids, do you have any difficulty walking up 10 steps without resting?',opts:[['Yes',1],['No',0]]},
+  {k:'amb',title:'Ambulation',q:'By yourself and not using aids, do you have any difficulty walking a couple of blocks (several hundred yards)?',opts:[['Yes',1],['No',0]]},
+  {k:'ill',title:'Illnesses',q:'Did a doctor ever tell you that you have any of: high blood pressure, diabetes, cancer (excluding minor skin cancer), chronic lung disease, heart attack, congestive heart failure, angina, asthma, arthritis, stroke, kidney disease? How many?',
+    opts:[['0 to 4 of these',0],['5 or more of these',1]]},
+  {k:'wt',title:'Loss of weight',q:'Has the patient lost more than 5% of their body weight over the past year? (5% of 70 kg is 3.5 kg)',opts:[['Yes',1],['No',0]]}
+];
+const blankFrail = ()=>({fat:null,res:null,amb:null,ill:null,wt:null});
+const SUGAR = ['Not required','Fasting','Post-meal','Random'];
+const PIN_TYPES = {
+  'Wound / skin tear':'#dc2626',
+  'Pressure injury / redness':'#7c3aed',
+  'Bruising':'#2563eb',
+  'Line site / cannula':'#059669',
+  'Pain / tenderness':'#d97706'
+};
+const CHECKS = [
+  ['chk-waterlow','Waterlow completed'],
+  ['chk-falls','Falls risk assessment completed'],
+  ['chk-resus','Resus / DNACPR status documented'],
+  ['chk-medrec','Medicines reconciliation initiated']
+];
+const ALLCHECKS = ['chk-id'].concat(CHECKS.map(c=>c[0]), 'chk-skin');
+const OBS = [
+  {key:'temp',label:'Temp',ids:['obs-temp']},
+  {key:'hr',label:'Pulse',ids:['obs-hr']},
+  {key:'bp',label:'BP',ids:['obs-bps','obs-bpd']},
+  {key:'rr',label:'Resp rate',ids:['obs-rr']},
+  {key:'spo2',label:'SpO2',ids:['obs-spo2']},
+  {key:'weight',label:'Weight',ids:['obs-wt']}
+];
+/* 4AT: answers stored as option index; check wording/scoring against the official 4AT before clinical use */
+const FOURAT = [
+  {k:'alert',title:'[1] Alertness',opts:[['Normal (fully alert, not agitated)',0],['Mild sleepiness for <10 s after waking, then normal',0],['Clearly abnormal',4]]},
+  {k:'amt',title:'[2] AMT4: age, date of birth, place, current year',opts:[['No mistakes',0],['1 mistake',1],['2 or more mistakes / untestable',2]]},
+  {k:'att',title:'[3] Attention: months of the year backwards',opts:[['7 months or more correct',0],['Starts but <7 months / refuses to start',1],['Untestable (cannot start: unwell, drowsy, inattentive)',2]]},
+  {k:'acute',title:'[4] Acute change or fluctuating course',opts:[['No',0],['Yes',4]]}
+];
+const FIELDS = ['admission-time','obs-temp','obs-hr','obs-bps','obs-bpd','obs-rr','obs-spo2','obs-wt','obs-o2','sugar-val','sugar-note','sbar-situation','nurse-name','unable-reason'];
+const DRAFT_KEY = 'afu_pad_draft_v3';
+const DRAFT_TTL_MS = 12*60*60*1000;
+const BODY = 'M86 48 L114 48 L114 56 Q140 60 148 70 L160 130 L148 134 L138 96 L134 150 L128 160 L124 245 L126 275 L108 275 L104 175 L100 168 L96 175 L92 275 L74 275 L76 245 L72 160 L66 150 L62 96 L52 134 L40 130 L52 70 Q60 60 86 56 Z';
+
+/* ================= state ================= */
+const blankState = ()=>({bed:null, sources:[], reasons:[], mobility:null, sugar:null, pins:[], unable:[], cfs:null, cfsSource:[], frail:blankFrail(),
+  at:{alert:null,amt:null,att:null,acute:null}, completedAt:null});
+const S = blankState();
+let editIdx = null, tempPt = null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toggle = (arr,v)=>{ const i=arr.indexOf(v); i<0?arr.push(v):arr.splice(i,1); };
+
+/* ================= chips ================= */
+function chips(elId, items, isOn, onTap, opts={}){
+  const el = $(elId); el.innerHTML='';
+  items.forEach(v=>{
+    const b = document.createElement('button');
+    b.type='button';
+    b.className = 'chip'+(opts.sm?' sm':'')+(opts.wrap?' wrap':'')+(isOn(v)?' on':'');
+    b.textContent = opts.label?opts.label(v):v;
+    b.setAttribute('aria-pressed', isOn(v));
+    b.onclick = ()=>{ onTap(v); renderChips(); changed(); };
+    el.appendChild(b);
+  });
+}
+function renderChips(){
+  chips('bed-chips', BEDS, v=>S.bed===v, v=>{S.bed = S.bed===v?null:v});
+  chips('source-chips', SOURCES, v=>S.sources.includes(v), v=>{ S.sources = S.sources.includes(v) ? [] : [v]; });   // one source only
+  chips('reason-chips', REASONS, v=>S.reasons.includes(v), v=>toggle(S.reasons,v));
+  chips('mobility-chips', MOBILITY, v=>S.mobility===v, v=>{S.mobility = S.mobility===v?null:v});
+  chips('sugar-chips', SUGAR, v=>S.sugar===v, v=>{S.sugar = S.sugar===v?null:v}, {sm:true});
+  chips('cfs-chips', CFS.map(c=>c[0]), v=>S.cfs===v, v=>{S.cfs = S.cfs===v?null:v}, {label:v=>v+' · '+CFS[v-1][1]});
+  chips('cfs-src', CFS_SRC, v=>S.cfsSource.includes(v), v=>toggle(S.cfsSource,v), {sm:true});
+  renderCFS();
+}
+function renderCFS(){
+  const off=S.unable.includes('cfs');
+  $('cfs-wrap').classList.toggle('fat-off',off);
+  const b=$('cfs-unable'); b.classList.toggle('on',off); b.textContent = off?'CFS not scored ✓':'CFS not scored';
+  $('cfs-readout').textContent = off ? 'CFS not scored' : (S.cfs ? 'Selected: CFS '+S.cfs+' – '+CFS[S.cfs-1][1] : '');
+}
+function toggleCfsUnable(){
+  toggle(S.unable,'cfs');
+  if(S.unable.includes('cfs')){ S.cfs=null; S.cfsSource=[]; }
+  renderChips(); applyUnable(); changed();
+}
+
+/* ---------- FRAIL scale: optional cross-check, never required, never replaces the CFS ---------- */
+let FT = blankFrail();
+const frailN = f=>FRAIL.filter(it=>f[it.k]!=null).length;
+const frailScore = f=>FRAIL.reduce((t,it)=>t+(f[it.k]!=null?it.opts[f[it.k]][1]:0),0);
+const frailCat = n=> n>=3?'Frail' : n>=1?'Pre-frail' : 'Robust';
+function renderFrail(){
+  const body=$('frail-body'); body.innerHTML='';
+  FRAIL.forEach(it=>{
+    const box=document.createElement('div'); box.className='fat-item';
+    const t=document.createElement('div'); t.className='fat-title'; t.textContent=it.title+': '+it.q; box.appendChild(t);
+    const row=document.createElement('div'); row.className='row';
+    it.opts.forEach((o,i)=>{
+      const b=document.createElement('button'); b.type='button';
+      const on=FT[it.k]===i; b.className='chip sm'+(on?' on':''); b.setAttribute('aria-pressed',on); b.textContent=o[0];
+      b.onclick=()=>{ FT[it.k]=FT[it.k]===i?null:i; renderFrail(); };
+      row.appendChild(b);
+    });
+    box.appendChild(row); body.appendChild(box);
+  });
+  const n=frailN(FT), badge=$('frail-badge');
+  $('frail-total').textContent = n===5 ? frailScore(FT) : '-';
+  badge.className='badge'+(n===5?(frailScore(FT)>=3?' hi':frailScore(FT)>=1?' mid':' lo'):'');
+  badge.textContent = n===5 ? frailCat(frailScore(FT)) : 'Not yet scored ('+n+' of 5 answered)';
+  $('frail-save').disabled = !(n===5 || n===0);
+  $('frail-save').style.opacity = $('frail-save').disabled ? .4 : 1;
+}
+function openFrail(){ FT=Object.assign(blankFrail(),S.frail); renderFrail(); $('frail-modal').classList.add('open'); }
+function closeFrail(){ $('frail-modal').classList.remove('open'); }
+function saveFrail(){ S.frail=Object.assign(blankFrail(),FT); closeFrail(); updateFrailSummary(); changed(); }
+function frailRemove(){ FT=blankFrail(); S.frail=blankFrail(); closeFrail(); updateFrailSummary(); changed(); }
+function updateFrailSummary(){
+  const done=frailN(S.frail)===5, s=$('frail-summary'), c=$('frail-check');
+  $('frail-open').style.display = DECISION_SUPPORT ? '' : 'none';   // scoring helper is part of decision support
+  $('frail-open').textContent = done ? 'Re-check FRAIL scale' : 'Fact-check with FRAIL scale (optional)';
+  if(!done){ s.textContent=''; c.textContent=''; return; }
+  const sc=frailScore(S.frail);
+  s.textContent='FRAIL '+sc+' / 5: '+frailCat(sc);
+  let msg='A different, shorter tool than the CFS, so some difference is normal.';
+  if(DECISION_SUPPORT && S.cfs!=null){
+    if(sc>=3 && S.cfs<=3) msg='FRAIL says frail but the CFS selected is '+S.cfs+'. Worth a second look at the CFS.';
+    else if(sc<=1 && S.cfs>=6) msg='FRAIL is low but the CFS selected is '+S.cfs+'. Worth a second look at the CFS.';
+    else msg='No large mismatch with the CFS selected. These are different tools, so some difference is normal.';
+  }
+  c.textContent=msg;
+}
+$('frail-modal').addEventListener('click',e=>{ if(e.target.id==='frail-modal') closeFrail(); });
+
+/* ================= 4AT ================= */
+function fatTotal(){ let t=0; FOURAT.forEach(it=>{ const a=S.at[it.k]; if(a!=null) t+=it.opts[a][1]; }); return t; }
+function fatAnswered(){ return FOURAT.filter(it=>S.at[it.k]!=null).length; }
+function fatInterp(t){
+  if(t>=4) return {cls:'hi',text:'4 or above: possible delirium +/- cognitive impairment'};
+  if(t>=1) return {cls:'mid',text:'1-3: possible cognitive impairment'};
+  return {cls:'lo',text:'0: delirium or severe cognitive impairment unlikely (delirium still possible if item 4 information is incomplete)'};
+}
+function render4AT(){
+  const off = S.unable.includes('fourat');
+  const wrap=$('fourat'); wrap.innerHTML='';
+  const head=document.createElement('div'); head.style.marginBottom='8px';
+  const ub=document.createElement('button'); ub.type='button'; ub.id='fat-unable';
+  ub.className='unable'+(off?' on':''); ub.textContent = off?'4AT not performed ✓':'4AT not performed';
+  ub.onclick=()=>{ toggle(S.unable,'fourat'); if(S.unable.includes('fourat')) FOURAT.forEach(it=>S.at[it.k]=null); applyUnable(); changed(); };
+  head.appendChild(ub); wrap.appendChild(head);
+  FOURAT.forEach(it=>{
+    const box=document.createElement('div'); box.className='fat-item'+(off?' fat-off':''); box.dataset.k=it.k;
+    const t=document.createElement('div'); t.className='fat-title'; t.textContent=it.title; box.appendChild(t);
+    const row=document.createElement('div'); row.className='row';
+    it.opts.forEach((o,i)=>{
+      const b=document.createElement('button'); b.type='button';
+      const on=S.at[it.k]===i;
+      b.className='chip wrap'+(on?' on':''); b.setAttribute('aria-pressed',on);
+      b.textContent = o[0]+(DECISION_SUPPORT?' ('+o[1]+')':'');
+      b.onclick=()=>{ S.at[it.k] = S.at[it.k]===i?null:i; render4AT(); changed(); };
+      row.appendChild(b);
+    });
+    box.appendChild(row); wrap.appendChild(box);
+  });
+  const bar=$('fat-scorebar'), badge=$('fat-badge');
+  bar.style.display = DECISION_SUPPORT ? 'flex' : 'none';
+  if(off){ $('fat-total').textContent='-'; badge.className='badge'; badge.textContent='Not performed'; $('fat-note').textContent=''; return; }
+  const n=fatAnswered();
+  $('fat-total').textContent = n===4 ? fatTotal() : '-';
+  if(n<4){ badge.className='badge'; badge.textContent='Not yet scored ('+n+' of 4 answered)'; $('fat-note').textContent=''; }
+  else { const r=fatInterp(fatTotal()); badge.className='badge '+r.cls; badge.textContent=r.text;
+    $('fat-note').textContent = DECISION_SUPPORT ? 'Checked against the official 4AT wording by your clinical safety officer? Do that before clinical use.' : ''; }
+}
+
+/* ================= body map ================= */
+function bodyMarkup(){
+  const fig=(dx,label,back)=>`<g transform="translate(${dx},0)">
+    <circle cx="100" cy="28" r="16" fill="#e2e8f0" stroke="#64748b" stroke-width="2"/>
+    <path d="${BODY}" fill="#e2e8f0" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
+    ${back?'<path d="M100 56 L100 168" stroke="#94a3b8" stroke-width="1.5" fill="none"/>':''}
+    <text x="100" y="294" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">${label}</text></g>`;
+  const pins = S.pins.map((p,i)=>`<g class="pin" data-i="${i}" style="cursor:pointer">
+    <circle cx="${p.x}" cy="${p.y}" r="11" fill="${PIN_TYPES[p.type]||'#dc2626'}" stroke="#fff" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y+4}" text-anchor="middle" font-size="12" font-weight="800" fill="#fff" style="pointer-events:none">${i+1}</text></g>`).join('');
+  return fig(0,'FRONT',false)+fig(200,'BACK',true)+pins;
+}
+function renderPins(){
+  $('body-svg').innerHTML = bodyMarkup();
+  $('pin-count').textContent = S.pins.length;
+  $('pin-list').innerHTML = S.pins.length ? S.pins.map((p,i)=>`
+    <div class="pinitem"><span class="dot" style="background:${PIN_TYPES[p.type]||'#dc2626'}">${i+1}</span>
+    <div><b>${esc(p.type)}</b> <span style="color:#64748b">(${p.x<200?'front':'back'})</span><br><span>${esc(p.desc)}</span></div></div>`).join('')
+    : '<p class="note" style="text-align:center;padding:24px 0;font-style:italic">No marks yet.</p>';
+}
+$('legend').innerHTML = Object.entries(PIN_TYPES).map(([k,c])=>`<span><i style="background:${c}"></i>${esc(k)}</span>`).join('');
+$('pin-type').innerHTML = Object.keys(PIN_TYPES).map(k=>`<option>${esc(k)}</option>`).join('');
+$('body-svg').addEventListener('click', e=>{
+  const g = e.target.closest('.pin');
+  if(g){ openPin(null, +g.dataset.i); return; }
+  const svg=$('body-svg'), pt=svg.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY;
+  const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+  if(p.y>280) return;
+  openPin({x:Math.round(p.x), y:Math.round(p.y)}, null);
+});
+function openPin(pt, idx){
+  tempPt = pt; editIdx = idx;
+  const p = idx!=null ? S.pins[idx] : null;
+  $('pin-title').textContent = p ? 'Edit mark '+(idx+1) : 'Add mark';
+  $('pin-type').value = p ? p.type : Object.keys(PIN_TYPES)[0];
+  $('pin-desc').value = p ? p.desc : '';
+  $('pin-del').style.display = p ? '' : 'none';
+  $('pin-modal').classList.add('open');
+  setTimeout(()=>$('pin-desc').focus(),50);
+}
+function closePin(){ $('pin-modal').classList.remove('open'); tempPt=null; editIdx=null; }
+function savePin(){
+  const type=$('pin-type').value, desc=$('pin-desc').value.trim()||type;
+  if(editIdx!=null){ S.pins[editIdx].type=type; S.pins[editIdx].desc=desc; }
+  else if(tempPt){ S.pins.push({x:tempPt.x,y:tempPt.y,type,desc}); }
+  closePin(); renderPins(); changed();
+}
+function deletePin(){ if(editIdx!=null){ S.pins.splice(editIdx,1); } closePin(); renderPins(); changed(); }
+function clearPins(){ if(S.pins.length && confirm('Remove all body map pins?')){ S.pins=[]; renderPins(); changed(); } }
+$('pin-modal').addEventListener('click',e=>{ if(e.target.id==='pin-modal') closePin(); });
+
+/* ================= checklist ================= */
+$('checks').innerHTML = CHECKS.map(([id,t])=>`<label class="check"><input type="checkbox" id="${id}"><span>${t}</span></label>`).join('');
+
+/* ================= CBG banner ================= */
+function sugarFlag(){
+  const v=parseFloat($('sugar-val').value), f=$('sugar-flag');
+  if(DECISION_SUPPORT && !isNaN(v) && v<4){ f.style.display='block'; f.textContent='CBG below 4.0 mmol/L: treat per hypoglycaemia protocol and recheck.'; }
+  else f.style.display='none';
+}
+
+/* ================= completeness (everything is required) ================= */
+const CHI_LIKE = /\b\d{10}\b|\b\d{6}[\s-]\d{4}\b/;
+function freeTexts(){
+  return [$('sbar-situation').value,$('sugar-note').value,$('unable-reason').value].concat(S.pins.map(p=>p.desc));
+}
+function missing(){
+  const m=[], add=(label,el)=>m.push({label,el});
+  if(S.bed==null) add('Bed',$('bed-wrap'));
+  if(!$('admission-time').value) add('Date & time',$('admission-time'));
+  if(!S.sources.length) add('Admission source',$('source-chips'));
+  if(!$('chk-id').checked) add('Wristband / addressograph check',$('id-wrap'));
+  OBS.forEach(o=>{
+    if(S.unable.includes(o.key)) return;
+    if(o.ids.some(id=>$(id).value.trim()==='')) add(o.label,$(o.ids[0]).closest('.obs > div'));
+  });
+  if(!$('obs-o2').value) add('O2 delivery',$('obs-o2').closest('.obs > div'));
+  /* CBG: a value, or "Not required". The context tag (fasting / post-meal / random) is optional. */
+  const cbgVal=$('sugar-val').value.trim();
+  if(S.sugar==='Not required'){ if(cbgVal) add('CBG: clear the value or the Not required tag',$('sugar-val').closest('.sugar-val')); }
+  else if(!cbgVal) add('CBG value (or choose Not required)',$('sugar-val').closest('.sugar-val'));
+  if(!S.unable.includes('cfs')){
+    if(S.cfs==null) add('Clinical Frailty Scale',$('cfs-chips'));
+    if(!S.cfsSource.length) add('CFS information source',$('cfs-src'));
+  }
+  if(!S.unable.includes('fourat') && fatAnswered()<4) add('4AT ('+fatAnswered()+' of 4 answered)',$('fourat'));
+  if(S.unable.length && !$('unable-reason').value.trim()) add('Reason for unable items',$('unable-reason'));
+  if(!S.pins.length && !$('chk-skin').checked) add('Skin: add marks or confirm none found',$('skin-wrap'));
+  if(!S.reasons.length) add('Reason for admission',$('reason-chips'));
+  if(!S.mobility) add('Baseline mobility',$('mobility-chips'));
+  CHECKS.forEach(([id,t])=>{ if(!$(id).checked) add(t,$(id).closest('label')); });
+  if(!$('nurse-name').value.trim()) add('Nurse name / role',$('nurse-name'));
+  if(freeTexts().some(t=>CHI_LIKE.test(t))) add('Remove CHI-style number from free text',$('sbar-situation'));
+  return m;
+}
+function mark(m){
+  document.querySelectorAll('.errbox').forEach(e=>e.classList.remove('errbox'));
+  m.forEach(x=>x.el.classList.add('errbox'));
+}
+function updateTodo(){
+  const n=missing().length, b=$('todo');
+  b.textContent = n ? n+' outstanding' : 'Nothing outstanding ✓';
+  b.classList.toggle('ok', !n);
+}
+function updateDone(){
+  $('done-badge').textContent = S.completedAt
+    ? 'Completed '+new Date(S.completedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : '';
+}
+function gotoFirst(){
+  const m=missing(); mark(m);
+  if(m.length) m[0].el.scrollIntoView({behavior:'smooth',block:'center'});
+  else toast('Everything is complete');
+}
+
+/* ================= "unable" handling ================= */
+function initUnable(){
+  OBS.forEach(o=>{
+    const box=$(o.ids[0]).closest('.obs > div');
+    const b=document.createElement('button');
+    b.type='button'; b.className='unable'; b.dataset.k=o.key; b.textContent='Unable';
+    b.onclick=()=>{ toggle(S.unable,o.key); applyUnable(); changed(); };
+    box.appendChild(b);
+  });
+}
+function applyUnable(){
+  OBS.forEach(o=>{
+    const on=S.unable.includes(o.key);
+    o.ids.forEach(id=>{ $(id).disabled=on; if(on) $(id).value=''; });
+    const b=document.querySelector('.unable[data-k="'+o.key+'"]');
+    if(b){ b.classList.toggle('on',on); b.textContent = on?'Unable ✓':'Unable'; }
+  });
+  $('unable-wrap').style.display = S.unable.length ? 'block' : 'none';
+  render4AT();
+}
+
+/* ================= draft ================= */
+let timer=null;
+function changed(){
+  sugarFlag(); updateFrailSummary();
+  if(S.completedAt){ S.completedAt=null; updateDone(); }
+  updateTodo();
+  if(document.querySelector('.errbox')) mark(missing());
+  clearTimeout(timer); timer=setTimeout(()=>saveDraft(false),700);
+}
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none',2600); }
+function saveDraft(manual){
+  const d={savedAt:Date.now(), S, f:{}, c:{}};
+  FIELDS.forEach(id=>d.f[id]=$(id).value);
+  ALLCHECKS.forEach(id=>d.c[id]=$(id).checked);
+  try{
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+    $('save-status').textContent='Draft saved '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    if(manual) toast('Draft saved on this device');
+  }catch(e){ toast('Could not save draft (storage blocked)'); }
+}
+function loadDraft(){
+  let d; try{ d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null'); }catch(e){ d=null; }
+  if(!d) return false;
+  if(Date.now()-d.savedAt > DRAFT_TTL_MS){ try{localStorage.removeItem(DRAFT_KEY);}catch(e){} return false; }
+  Object.assign(S, blankState(), d.S||{});
+  S.at = Object.assign({alert:null,amt:null,att:null,acute:null}, S.at||{});
+  if(!Array.isArray(S.unable)) S.unable=[];
+  if(!Array.isArray(S.cfsSource)) S.cfsSource=[];
+  S.frail = Object.assign(blankFrail(), S.frail||{});
+  FIELDS.forEach(id=>{ if(d.f && d.f[id]!=null) $(id).value=d.f[id]; });
+  ALLCHECKS.forEach(id=>{ $(id).checked=!!(d.c&&d.c[id]); });
+  toast('Restored unsent draft');
+  return true;
+}
+function nowLocal(){ const n=new Date(); n.setMinutes(n.getMinutes()-n.getTimezoneOffset()); return n.toISOString().slice(0,16); }
+function clearAll(){
+  if(!confirm('Clear everything for the next patient?\n\nOnly do this once the printout is in the notes. This cannot be undone.')) return;
+  try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+  FIELDS.forEach(id=>{ const e=$(id); e.disabled=false; e.value = e.tagName==='SELECT' ? e.options[0].value : ''; });
+  ALLCHECKS.forEach(id=>$(id).checked=false);
+  Object.assign(S, blankState());
+  $('admission-time').value=nowLocal();
+  $('save-status').textContent='';
+  document.querySelectorAll('.errbox').forEach(e=>e.classList.remove('errbox'));
+  renderChips(); renderPins(); sugarFlag(); applyUnable(); updateFrailSummary(); updateTodo(); updateDone();
+}
+
+/* ================= complete + print ================= */
+function markComplete(){
+  const m=missing(); mark(m);
+  if(m.length){
+    toast(m.length+' outstanding: '+m.slice(0,3).map(x=>x.label).join(', ')+(m.length>3?'...':''));
+    m[0].el.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  S.completedAt=Date.now(); updateDone(); saveDraft(false); snapshotAdmission();
+  toast('Marked complete. Print when you can; no need to wait for the printer.');
+}
+function handlePrint(){
+  const m=missing(); mark(m);
+  if(m.length){
+    toast(m.length+' outstanding: '+m.slice(0,3).map(x=>x.label).join(', ')+(m.length>3?'...':''));
+    m[0].el.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  snapshotAdmission(); buildPrint(); window.print();
+}
+function buildPrint(){
+  const v=id=>$(id).value.trim();
+  const dt=v('admission-time') ? new Date(v('admission-time')).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}) : '-';
+  const bp=(v('obs-bps')||'-')+' / '+(v('obs-bpd')||'-');
+  const cbgVal=v('sugar-val'); const low=DECISION_SUPPORT && parseFloat(cbgVal)<4;
+  const miss=missing();
+  const banner = miss.length
+    ? `<div class="bad" style="border:3px solid #b91c1c;padding:4px;text-align:center;font-size:14pt;margin-bottom:5px">INCOMPLETE - NOT VALID FOR FILING<div style="font-size:8.5pt;font-weight:600">Outstanding: ${esc(miss.map(x=>x.label).join('; '))}</div></div>`
+    : '';
+  const oc=(k,txt)=>S.unable.includes(k)?'<span class="bad">UNABLE</span>':txt;
+  const svg=`<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">${bodyMarkup()}</svg>`;
+  const pins=S.pins.length?`<table><tr><th>#</th><th>Finding</th><th>Side</th><th>Details</th></tr>${S.pins.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.type)}</td><td>${p.x<200?'Front':'Back'}</td><td>${esc(p.desc)}</td></tr>`).join('')}</table>`
+    :`<p>${$('chk-skin').checked?'Skin fully inspected: no marks found.':'<b class="bad">Skin not recorded.</b>'}</p>`;
+  let fat;
+  if(S.unable.includes('fourat')){
+    fat=`<p class="bad">4AT NOT PERFORMED. Reason: ${esc(v('unable-reason')||'-')}</p>`;
+  } else {
+    fat=`<table><tr><th style="width:34%">Item</th><th>Answer</th>${DECISION_SUPPORT?'<th style="width:9%">Score</th>':''}</tr>`+
+      FOURAT.map(it=>{ const a=S.at[it.k]; return `<tr><td>${esc(it.title)}</td><td>${a==null?'<b class="bad">NOT ANSWERED</b>':esc(it.opts[a][0])}</td>${DECISION_SUPPORT?`<td>${a==null?'-':it.opts[a][1]}</td>`:''}</tr>`; }).join('')+
+      (DECISION_SUPPORT && fatAnswered()===4 ? `<tr><th colspan="2">Total / 12: ${fatTotal()} &nbsp;&mdash;&nbsp; ${esc(fatInterp(fatTotal()).text)}</th><th>${fatTotal()}</th></tr>`:'')+`</table>`;
+  }
+  const cfsHtml = S.unable.includes('cfs')
+    ? `<p class="bad">CFS NOT SCORED. Reason: ${esc(v('unable-reason')||'-')}</p>`
+    : (S.cfs==null ? '<p><b class="bad">CFS NOT RECORDED</b></p>'
+      : `<table><tr><td class="big" style="width:12%">CFS ${S.cfs}</td><td>${esc(CFS[S.cfs-1][1])} (baseline about 2 weeks before this illness)<br>Source: ${esc(S.cfsSource.join(', ')||'Not recorded')}</td></tr></table>
+         <div style="font-size:6.5pt">Clinical Frailty Scale &copy; Rockwood et al., Dalhousie University.</div>`);
+  const frailHtml = frailN(S.frail)===5
+    ? `<p>FRAIL scale cross-check (optional): <b>${frailScore(S.frail)} / 5, ${frailCat(frailScore(S.frail))}</b>. ${FRAIL.map(it=>esc(it.title)+': '+esc(FRAIL.find(x=>x.k===it.k).opts[S.frail[it.k]][0])).join('; ')}.</p>`
+    : '';
+  const doneTxt = S.completedAt ? 'Completed '+new Date(S.completedAt).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}) : '<span class="bad">Not marked complete</span>';
+  $('print-sheet').innerHTML=`
+    ${banner}<table class="pg"><thead><tr><td>
+    <div class="top"><div><h1>AFU Admission &amp; Nursing Moment Summary</h1>
+      <div style="font-size:8pt">Acute Frailty Unit &bull; Confidential patient record &bull; Printed ${esc(new Date().toLocaleString('en-GB'))} &bull; ${doneTxt}</div></div>
+      <div class="sticker">AFFIX PATIENT ADDRESSOGRAPH STICKER HERE<div style="font-weight:400;font-size:7pt">(CHI / name / DOB / consultant)</div></div></div>
+    </td></tr></thead><tbody><tr><td>
+    <table><tr><th>Bed</th><th>Admitted</th><th>Source</th><th>Wristband checked vs sticker</th></tr>
+      <tr><td class="big">${S.bed==null?'-':S.bed}</td><td>${esc(dt)}</td><td>${esc(S.sources.join(', ')||'Not recorded')}</td><td class="${$('chk-id').checked?'':'bad'}">${$('chk-id').checked?'&#9745; Done':'&#9744; NOT DONE'}</td></tr></table>
+    <h2>Observations</h2>
+    <table><tr><th>Temp</th><th>Pulse</th><th>BP</th><th>Resp rate</th><th>SpO&#8322;</th><th>Weight</th><th>O&#8322; delivery</th></tr>
+      <tr><td>${oc('temp',esc(v('obs-temp')||'-')+' &deg;C')}</td><td>${oc('hr',esc(v('obs-hr')||'-'))}</td><td>${oc('bp',esc(bp))}</td><td>${oc('rr',esc(v('obs-rr')||'-'))}</td><td>${oc('spo2',esc(v('obs-spo2')||'-')+' %')}</td><td>${oc('weight',esc(v('obs-wt')||'-')+' kg')}</td><td>${esc(v('obs-o2')||'-')}</td></tr></table>
+    <table style="margin-top:3px"><tr><th style="width:22%">CBG${S.sugar&&S.sugar!=='Not required'?' ('+esc(S.sugar)+')':''}</th><td class="${low?'bad':''}">${cbgVal?esc(cbgVal)+' mmol/L'+(low?' (LOW)':''):(S.sugar==='Not required'?'Not required':'-')}</td><th style="width:10%">Notes</th><td>${esc(v('sugar-note')||'-')}</td></tr></table>
+    ${S.unable.filter(k=>OBS.some(o=>o.key===k)).length?`<p class="bad">Unable to obtain: ${esc(S.unable.filter(k=>OBS.some(o=>o.key===k)).map(k=>OBS.find(o=>o.key===k).label).join(', '))}. Reason: ${esc(v('unable-reason')||'-')}</p>`:''}
+    <h2>Clinical Frailty Scale</h2>${cfsHtml}${frailHtml}
+    <h2>4AT delirium screen</h2>${fat}
+    <h2>Skin / body map</h2>
+    <div class="keep" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start"><div>${svg}</div><div>${pins}</div></div>
+    <h2>Reason for admission &amp; mobility</h2>
+    <table><tr><th style="width:18%">Reason</th><td>${esc(S.reasons.join(', ')||'Not recorded')}</td></tr>
+      <tr><th>Context</th><td style="white-space:pre-wrap">${esc(v('sbar-situation')||'-')}</td></tr>
+      <tr><th>Baseline mobility</th><td>${esc(S.mobility||'Not recorded')}</td></tr></table>
+    <h2>Mandatory checklist</h2>
+    <table>${CHECKS.map(([id,t])=>`<tr><td style="width:75%">${t}</td><td class="${$(id).checked?'':'bad'}">${$(id).checked?'&#9745; Done':'&#9744; NOT DONE'}</td></tr>`).join('')}</table>
+    <h2>Sign-off</h2>
+    <table><tr><th style="width:22%">Admitting nurse</th><td>${esc(v('nurse-name')||'-')}</td><th style="width:12%">Signature</th><td style="width:30%;height:9mm"></td></tr></table>
+    </td></tr></tbody></table>`;
+}
+window.addEventListener('beforeprint', ()=>{ if(VIEW==='dis') buildPrintD(); else if(VIEW==='adm') buildPrint(); else $('print-sheet').innerHTML=''; });   // Ctrl/Cmd+P still gets the INCOMPLETE stamp
+
+
+/* ================= v5: views, bed records, DISCHARGE ================= */
+const RECORD_KEY = 'afu_pad_records_v1';
+const RECORD_TTL_MS = 21*24*60*60*1000;
+const DISCHARGE_CHECKLIST_VERSION = 'DRAFT 0.1 (unapproved: replace with the ward-approved checklist before clinical use)';
+const DEST = ['Own home (alone)','Own home (with family / carer)','Own home with care package','Current care home','New care home','Community hospital / rehab','Other (add a note)'];
+const TRANSPORT = ['Family / carer','Patient transport / ambulance','Taxi','Other (add a note)'];
+const FOLLOW = ['GP','Community nursing','Therapy / rehab','Falls clinic','Outpatient clinic','Virtual ward / hospital at home','None needed'];
+const FUNC = ['At baseline','Improved','Below baseline'];
+const SKIN_D = ['No new or worse marks','New or worse marks'];
+/* DRAFT generic checklist. na:true = may be marked N/A, but only with a written reason. Replace with the ward's own approved list. */
+const DCHECKLIST = [
+  {id:'fit',   t:'Medically fit for discharge documented'},
+  {id:'dest',  t:'Destination confirmed and agreed with patient / carer'},
+  {id:'info',  t:'Patient / carer understand the plan and what to do (and who to call) if unwell'},
+  {id:'mob',   t:'Mobility and function safe for destination (therapy sign-off if required)'},
+  {id:'equip', t:'Equipment / adaptations in place', na:true},
+  {id:'care',  t:'Care package / support confirmed to start', na:true},
+  {id:'home',  t:'Home safe on arrival: heating, food, key access', na:true},
+  {id:'trans', t:'Transport arranged and receiving person / carer informed'},
+  {id:'tto',   t:'Medicines (TTO) supplied, explained and checked against reconciliation'},
+  {id:'medrec',t:'Medicines reconciliation completed'},
+  {id:'letter',t:'Discharge letter completed and sent to GP'},
+  {id:'fu',    t:'Follow-up arranged and explained to patient'},
+  {id:'resus', t:'Resus / DNACPR status checked; copy with patient', na:true},
+  {id:'lines', t:'Cannula / lines / catheter removed or plan documented', na:true},
+  {id:'belong',t:'Belongings, aids and own medicines returned'},
+  {id:'cap',   t:'Capacity, consent and safeguarding considered', na:true}
+];
+const DOBS = OBS.map(o=>({key:o.key,label:o.label,ids:o.ids.map(i=>'d-'+i)}));
+const DFIELDS = ['d-time','d-obs-temp','d-obs-hr','d-obs-bps','d-obs-bpd','d-obs-rr','d-obs-spo2','d-obs-wt','d-obs-o2','d-unable-reason','d-func-reason','d-skin-text','d-plan','d-nurse'];
+const DCHECKS = ['d-chk-id','d-chk-base','d-func-agreed','d-delir-ack'];
+const OBS_HDR = ['Temp &deg;C','Pulse','BP','Resp rate','SpO&#8322; %','Weight kg','O&#8322; delivery'];
+const fmtDT = s => s ? new Date(s).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}) : '-';
+const hhmm = () => new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+
+/* ---------- records (per bed, this device only, no identifiers) ---------- */
+let RECS = {};
+function saveRecs(){ try{ localStorage.setItem(RECORD_KEY, JSON.stringify(RECS)); return true; }catch(e){ toast('Could not store bed record (storage blocked)'); return false; } }
+function loadRecs(){
+  try{ RECS = JSON.parse(localStorage.getItem(RECORD_KEY)||'{}') || {}; }catch(e){ RECS = {}; }
+  let ch=false;
+  Object.keys(RECS).forEach(b=>{ if(!RECS[b] || Date.now()-(RECS[b].savedAt||0) > RECORD_TTL_MS){ delete RECS[b]; ch=true; } });
+  if(ch) saveRecs();
+}
+function snapshotAdmission(){
+  if(S.bed==null) return;
+  const f={}; FIELDS.forEach(id=>f[id]=$(id).value);
+  const c={}; ALLCHECKS.forEach(id=>c[id]=$(id).checked);
+  const snap={savedAt:Date.now(), S:JSON.parse(JSON.stringify(S)), f, c};
+  const old=RECS[S.bed];
+  const same = old && old.adm && old.adm.f['admission-time']===f['admission-time'];
+  if(old && !same){
+    const discharged = old.dis && old.dis.D && old.dis.D.completedAt;
+    if(!discharged && !confirm('Bed '+S.bed+' already has a stored record'+(old.adm?' (admitted '+fmtDT(old.adm.f['admission-time'])+')':'')+' that has not been discharged.\n\nReplace it with this new admission?')) return;
+    RECS[S.bed]={adm:snap, savedAt:Date.now()};
+  } else {
+    RECS[S.bed]=Object.assign(old||{}, {adm:snap, savedAt:Date.now()});
+  }
+  saveRecs();
+}
+
+/* ---------- views ---------- */
+let VIEW='home';
+function showView(v){
+  if(VIEW==='adm' && v!=='adm') saveDraft(false);
+  if(VIEW==='dis' && v!=='dis') dSave(false);
+  VIEW=v;
+  ['home','adm','dis'].forEach(x=>$('view-'+x).classList.toggle('active',x===v));
+  $('act-adm').style.display = v==='adm'?'flex':'none';
+  $('act-dis').style.display = v==='dis'?'flex':'none';
+  $('btn-home').style.display = v==='home'?'none':'';
+  $('hdr-sub').textContent = v==='adm'?'Admission • zero patient identifiers held' : v==='dis'?'Discharge • zero patient identifiers held' : 'Admission & discharge • zero patient identifiers held';
+  document.querySelectorAll('.errbox').forEach(e=>e.classList.remove('errbox'));
+  if(v==='home') renderHome();
+  if(v==='adm'){ updateTodo(); updateDone(); }
+  if(v==='dis'){ renderDischarge(); updateDTodo(); updateDDone(); }
+  window.scrollTo(0,0);
+}
+function goHome(){ showView('home'); }
+function startAdmission(){ showView('adm'); }
+function startDischarge(bed){
+  if(bed!=null && D.bed!==bed) selectDBed(bed);
+  showView('dis');
+}
+function renderHome(){
+  $('adm-draft-note').textContent = S.bed!=null ? 'An admission is in progress for bed '+S.bed+' (draft saved on this tablet). Tap Admit to carry on.' : '';
+  const beds=Object.keys(RECS).map(Number).sort((a,b)=>a-b), el=$('rec-list');
+  if(!beds.length){ el.innerHTML='<p class="note">No bed records on this tablet yet. Completing or printing an admission stores its baseline here.</p>'; return; }
+  el.innerHTML=beds.map(b=>{
+    const r=RECS[b], dd=r.dis&&r.dis.D;
+    let st = r.adm ? 'Admitted '+esc(fmtDT(r.adm.f['admission-time'])) : 'No admission record on this tablet';
+    if(dd && dd.completedAt) st += ' &mdash; <b style="color:#15803d">discharge complete '+esc(fmtDT(new Date(dd.completedAt).toISOString()))+'</b>';
+    else if(dd) st += ' &mdash; <b style="color:#b45309">discharge in progress</b>';
+    return `<div class="rec"><span class="bed">${b}</span><span class="st">${st}</span>
+      <button class="btn primary" style="background:#1d4ed8;border-color:#1d4ed8" onclick="startDischarge(${b})">${dd&&dd.completedAt?'Open discharge':'Discharge'}</button>
+      <button class="btn danger" onclick="clearRec(${b})">Clear bed record</button></div>`;
+  }).join('');
+}
+function clearRec(b){
+  const r=RECS[b], done=r && r.dis && r.dis.D && r.dis.D.completedAt;
+  if(!confirm('Clear the stored record for bed '+b+'?\n\n'+(done?'The discharge is marked complete. Only clear once the discharge sheet is filed in the notes.':'THIS BED HAS NOT BEEN DISCHARGED ON THIS PAD. The baseline for a discharge check will be lost.')+'\n\nThis cannot be undone.')) return;
+  delete RECS[b]; saveRecs();
+  if(D.bed===b){ D=blankD(); resetDFields(); }
+  renderHome();
+}
+
+/* ---------- discharge state ---------- */
+const blankD = ()=>({bed:null, unable:[], at:{alert:null,amt:null,att:null,acute:null}, mobility:null, baseMob:null, func:null, skin:null,
+  dest:null, trans:null, follow:[], chk:{}, na:{}, completedAt:null});
+let D = blankD();
+function resetDFields(){
+  DFIELDS.forEach(id=>{ const e=$(id); e.disabled=false; e.value = e.tagName==='SELECT' ? e.options[0].value : ''; });
+  DCHECKS.forEach(id=>$(id).checked=false);
+  $('d-time').value=nowLocal();
+}
+function baselineAdm(){ const r = D.bed!=null && RECS[D.bed]; return r && r.adm ? r.adm : null; }
+function baseMobility(){ const a=baselineAdm(); return a ? a.S.mobility : D.baseMob; }
+function autoWorse(){ const bm=baseMobility(); return !!(bm && D.mobility && MOBILITY.indexOf(D.mobility) > MOBILITY.indexOf(bm)); }
+function dfatAnswered(){ return FOURAT.filter(it=>D.at[it.k]!=null).length; }
+function dfatTotal(){ return FOURAT.reduce((t,it)=>t+(D.at[it.k]!=null?it.opts[D.at[it.k]][1]:0),0); }
+function dDelirium(){ return DECISION_SUPPORT && !D.unable.includes('fourat') && dfatAnswered()===4 && dfatTotal()>=4; }
+
+function selectDBed(v){
+  if(D.bed===v) return;
+  if(D.bed!=null) dSave(false);
+  const stored = RECS[v] && RECS[v].dis;
+  if(stored){
+    resetDFields();
+    D=Object.assign(blankD(), stored.D);
+    D.at=Object.assign(blankD().at, D.at||{});
+    ['unable','follow'].forEach(k=>{ if(!Array.isArray(D[k])) D[k]=[]; });
+    if(!D.chk) D.chk={}; if(!D.na) D.na={};
+    DFIELDS.forEach(id=>{ if(stored.f && stored.f[id]!=null) $(id).value=stored.f[id]; });
+    DCHECKS.forEach(id=>$(id).checked=!!(stored.c&&stored.c[id]));
+  } else if(D.bed!=null){ resetDFields(); D=blankD(); }
+  D.bed=v;
+}
+let dtimer=null;
+function dchanged(){
+  if(D.completedAt){ D.completedAt=null; updateDDone(); }
+  dFlags(); updateDTodo();
+  if(document.querySelector('#view-dis .errbox')) dmark(dmissing());
+  clearTimeout(dtimer); dtimer=setTimeout(()=>dSave(false),700);
+}
+function dSave(manual){
+  if(D.bed==null){ if(manual) toast('Choose a bed first'); return; }
+  const f={}, c={}; DFIELDS.forEach(id=>f[id]=$(id).value); DCHECKS.forEach(id=>c[id]=$(id).checked);
+  const r = RECS[D.bed] || (RECS[D.bed]={});
+  r.dis={D:JSON.parse(JSON.stringify(D)), f, c, savedAt:Date.now()}; r.savedAt=Date.now();
+  if(saveRecs()){ $('dsave-status').textContent='Saved '+hhmm(); if(manual) toast('Saved on this device'); }
+}
+function dClear(){
+  if(!confirm('Clear this discharge form'+(D.bed!=null?' for bed '+D.bed:'')+'?\n\nThe admission record is kept. This cannot be undone.')) return;
+  if(D.bed!=null && RECS[D.bed]){ delete RECS[D.bed].dis; if(!RECS[D.bed].adm) delete RECS[D.bed]; saveRecs(); }
+  const b=D.bed; D=blankD(); resetDFields(); if(b!=null) D.bed=b;
+  document.querySelectorAll('.errbox').forEach(e=>e.classList.remove('errbox'));
+  renderDischarge(); updateDTodo(); updateDDone(); $('dsave-status').textContent='';
+}
+
+/* ---------- discharge UI ---------- */
+function dchips(elId, items, isOn, onTap, opts={}){
+  const el=$(elId); el.innerHTML='';
+  items.forEach(v=>{
+    const b=document.createElement('button'); b.type='button';
+    b.className='chip'+(opts.sm?' sm':'')+(opts.wrap?' wrap':'')+(isOn(v)?' on':'');
+    b.textContent=opts.label?opts.label(v):v; b.setAttribute('aria-pressed',isOn(v));
+    b.onclick=()=>{ onTap(v); renderDischarge(); dchanged(); };
+    el.appendChild(b);
+  });
+}
+function admInfo(a){
+  const s=a.S, un=s.unable;
+  const fat = un.includes('fourat') ? 'Not performed' : (FOURAT.every(it=>s.at[it.k]!=null) ? (DECISION_SUPPORT ? FOURAT.reduce((t,it)=>t+it.opts[s.at[it.k]][1],0)+' / 12' : 'Recorded') : 'Incomplete');
+  return {
+    time:a.f['admission-time'], mobility:s.mobility||'-', reasons:s.reasons.join(', ')||'-', bed:s.bed,
+    cfs: un.includes('cfs') ? 'Not scored' : (s.cfs ? 'CFS '+s.cfs+' ('+CFS[s.cfs-1][1]+')' : '-'),
+    fat,
+    skin: s.pins.length ? s.pins.length+' mark(s): '+s.pins.map(p=>p.type+(p.desc&&p.desc!==p.type?' ('+p.desc+')':'')).join('; ') : (a.c['chk-skin']?'No marks found':'Not recorded')
+  };
+}
+function obsRow(un,val,pre){
+  const x=(k,t)=>un.includes(k)?'UNABLE':t;
+  return [x('temp',val(pre+'temp')||'-'), x('hr',val(pre+'hr')||'-'), x('bp',(val(pre+'bps')||'-')+' / '+(val(pre+'bpd')||'-')),
+    x('rr',val(pre+'rr')||'-'), x('spo2',val(pre+'spo2')||'-'), x('weight',val(pre+'wt')||'-'), val(pre+'o2')||'-'];
+}
+function renderBasePanel(a){
+  const el=$('d-base');
+  if(D.bed==null){ el.innerHTML='<div class="base none">Choose a bed to load the admission baseline.</div>'; return; }
+  if(!a){ el.innerHTML='<div class="base none"><b>No admission record for bed '+D.bed+' on this tablet.</b> (Admitted before the pad, or on the other tablet.) Open the admission sheet in the notes and copy the baseline mobility below. The "then vs now" comparison will be limited on the printout.</div>'; return; }
+  const i=admInfo(a), o=obsRow(a.S.unable,id=>a.f[id],'obs-');
+  el.innerHTML='<div class="base"><b>ADMISSION BASELINE, bed '+D.bed+' &mdash; admitted '+esc(fmtDT(i.time))+'</b>'+
+    '<dl><dt>Reason</dt><dd>'+esc(i.reasons)+'</dd><dt>Mobility</dt><dd>'+esc(i.mobility)+'</dd><dt>Frailty</dt><dd>'+esc(i.cfs)+'</dd>'+
+    '<dt>4AT</dt><dd>'+esc(i.fat)+'</dd><dt>Obs</dt><dd>T '+esc(o[0])+' &bull; HR '+esc(o[1])+' &bull; BP '+esc(o[2])+' &bull; RR '+esc(o[3])+' &bull; SpO&#8322; '+esc(o[4])+' &bull; Wt '+esc(o[5])+' kg</dd>'+
+    '<dt>Skin</dt><dd>'+esc(i.skin)+'</dd></dl></div>';
+}
+function renderD4AT(){
+  const off=D.unable.includes('fourat'), wrap=$('d-fourat'); wrap.innerHTML='';
+  const ub=document.createElement('button'); ub.type='button'; ub.className='unable'+(off?' on':''); ub.style.marginBottom='8px';
+  ub.textContent = off?'4AT not performed ✓':'4AT not performed';
+  ub.onclick=()=>{ toggle(D.unable,'fourat'); if(D.unable.includes('fourat')) FOURAT.forEach(it=>D.at[it.k]=null); dapplyUnable(); dchanged(); };
+  wrap.appendChild(ub);
+  FOURAT.forEach(it=>{
+    const box=document.createElement('div'); box.className='fat-item'+(off?' fat-off':'');
+    const t=document.createElement('div'); t.className='fat-title'; t.textContent=it.title; box.appendChild(t);
+    const row=document.createElement('div'); row.className='row';
+    it.opts.forEach((o,i)=>{
+      const b=document.createElement('button'); b.type='button'; const on=D.at[it.k]===i;
+      b.className='chip wrap'+(on?' on':''); b.setAttribute('aria-pressed',on);
+      b.textContent=o[0]+(DECISION_SUPPORT?' ('+o[1]+')':'');
+      b.onclick=()=>{ D.at[it.k]=D.at[it.k]===i?null:i; renderD4AT(); dFlags(); dchanged(); };
+      row.appendChild(b);
+    });
+    box.appendChild(row); wrap.appendChild(box);
+  });
+}
+function dinitUnable(){
+  DOBS.forEach(o=>{
+    const box=$(o.ids[0]).closest('.obs > div'), b=document.createElement('button');
+    b.type='button'; b.className='unable'; b.dataset.dk=o.key; b.textContent='Unable';
+    b.onclick=()=>{ toggle(D.unable,o.key); dapplyUnable(); dchanged(); };
+    box.appendChild(b);
+  });
+}
+function dapplyUnable(){
+  DOBS.forEach(o=>{
+    const on=D.unable.includes(o.key);
+    o.ids.forEach(id=>{ $(id).disabled=on; if(on) $(id).value=''; });
+    const b=document.querySelector('.unable[data-dk="'+o.key+'"]');
+    if(b){ b.classList.toggle('on',on); b.textContent=on?'Unable ✓':'Unable'; }
+  });
+  $('d-unable-wrap').style.display = D.unable.length ? 'block' : 'none';
+  renderD4AT(); dFlags();
+}
+function renderChecklist(){
+  const el=$('d-checklist'); el.innerHTML='';
+  DCHECKLIST.forEach(it=>{
+    const row=document.createElement('div'); row.className='drow'; row.id='d-row-'+it.id;
+    const t=document.createElement('div'); t.className='t'; t.textContent=it.t; row.appendChild(t);
+    const mk=(label,val)=>{ const b=document.createElement('button'); b.type='button'; const on=D.chk[it.id]===val;
+      b.className='chip sm'+(on?' on':''); b.setAttribute('aria-pressed',on); b.textContent=label;
+      b.onclick=()=>{ if(D.chk[it.id]===val) delete D.chk[it.id]; else D.chk[it.id]=val; renderChecklist(); dchanged(); }; return b; };
+    row.appendChild(mk('Done','done'));
+    if(it.na) row.appendChild(mk('N/A','na'));
+    if(D.chk[it.id]==='na'){
+      const inp=document.createElement('input'); inp.type='text'; inp.maxLength=100; inp.placeholder='Why is this not applicable? *';
+      inp.value=D.na[it.id]||''; inp.oninput=()=>{ D.na[it.id]=inp.value; dchanged(); }; row.appendChild(inp);
+    }
+    el.appendChild(row);
+  });
+}
+function dFlags(){
+  const fatOn = D.unable.includes('fourat');
+  $('d-fat-bar').style.display = DECISION_SUPPORT ? 'flex' : 'none';
+  const n=dfatAnswered(), badge=$('d-fat-badge');
+  if(fatOn){ $('d-fat-total').textContent='-'; badge.className='badge'; badge.textContent='Not performed'; }
+  else if(n<4){ $('d-fat-total').textContent='-'; badge.className='badge'; badge.textContent='Not yet scored ('+n+' of 4 answered)'; }
+  else { const r=fatInterp(dfatTotal()); $('d-fat-total').textContent=dfatTotal(); badge.className='badge '+r.cls; badge.textContent=r.text; }
+  $('d-delir-wrap').style.display = dDelirium() ? 'flex' : 'none';
+  if(!dDelirium()) $('d-delir-ack').checked=false;
+  const bm=baseMobility();
+  $('d-mob-cmp').textContent = bm ? 'Baseline mobility: '+bm+(D.mobility?' • now: '+D.mobility:'') : '';
+  const worse=autoWorse();
+  $('d-func-warn').innerHTML = (worse && D.func!=='Below baseline') ? '<div class="warnbar">Mobility is more dependent than at baseline ('+esc(bm)+' to '+esc(D.mobility)+'). Select "Below baseline" and record the plan.</div>' : '';
+  $('d-func-detail').style.display = D.func==='Below baseline' ? 'block' : 'none';
+  $('d-skin-text').style.display = D.skin===SKIN_D[1] ? 'block' : 'none';
+  $('d-base-label').textContent = baselineAdm() ? 'This is the patient admitted to this bed (matches the sticker on the admission sheet) *' : 'No admission record on this tablet: baseline taken from the admission sheet in the notes *';
+  $('d-basemob-wrap').style.display = (D.bed!=null && !baselineAdm()) ? 'block' : 'none';
+}
+function renderDischarge(){
+  dchips('d-bed-chips', BEDS, v=>D.bed===v, selectDBed, {label:v=>v+((RECS[v]&&RECS[v].adm)?' •':'')});
+  const a=baselineAdm(); renderBasePanel(a);
+  dchips('d-basemob-chips', MOBILITY, v=>D.baseMob===v, v=>{D.baseMob=D.baseMob===v?null:v});
+  dchips('d-mob-chips', MOBILITY, v=>D.mobility===v, v=>{D.mobility=D.mobility===v?null:v});
+  dchips('d-func-chips', FUNC, v=>D.func===v, v=>{D.func=D.func===v?null:v});
+  dchips('d-skin-chips', SKIN_D, v=>D.skin===v, v=>{D.skin=D.skin===v?null:v});
+  dchips('d-dest-chips', DEST, v=>D.dest===v, v=>{D.dest=D.dest===v?null:v});
+  dchips('d-trans-chips', TRANSPORT, v=>D.trans===v, v=>{D.trans=D.trans===v?null:v});
+  dchips('d-follow-chips', FOLLOW, v=>D.follow.includes(v), v=>toggle(D.follow,v), {sm:true});
+  $('d-ver').textContent = 'Checklist version: '+DISCHARGE_CHECKLIST_VERSION;
+  renderChecklist(); dapplyUnable();
+}
+
+/* ---------- discharge completeness ---------- */
+function dfreeTexts(){ return [$('d-unable-reason').value,$('d-func-reason').value,$('d-skin-text').value,$('d-plan').value].concat(Object.values(D.na||{})); }
+function dmissing(){
+  const m=[], add=(l,el)=>m.push({label:l,el}), adm=baselineAdm();
+  if(D.bed==null) add('Bed',$('d-bed-chips'));
+  if(!$('d-time').value) add('Date & time',$('d-time'));
+  else if(adm && adm.f['admission-time'] && $('d-time').value < adm.f['admission-time']) add('Discharge time is before admission time',$('d-time'));
+  if(!$('d-chk-id').checked) add('Wristband / addressograph check',$('d-id-wrap'));
+  if(D.bed!=null){
+    if(!$('d-chk-base').checked) add(adm?'Confirm this is the admitted patient':'Acknowledge: no stored baseline',$('d-base-wrap'));
+    if(!adm && !D.baseMob) add('Baseline mobility from admission sheet',$('d-basemob-chips'));
+  }
+  DOBS.forEach(o=>{ if(D.unable.includes(o.key)) return; if(o.ids.some(id=>$(id).value.trim()==='')) add(o.label,$(o.ids[0]).closest('.obs > div')); });
+  if(!$('d-obs-o2').value) add('O2 delivery',$('d-obs-o2').closest('.obs > div'));
+  if(!D.unable.includes('fourat') && dfatAnswered()<4) add('4AT ('+dfatAnswered()+' of 4 answered)',$('d-fourat'));
+  if(dDelirium() && !$('d-delir-ack').checked) add('4AT 4+: medical team confirmation',$('d-delir-wrap'));
+  if(D.unable.length && !$('d-unable-reason').value.trim()) add('Reason for unable items',$('d-unable-reason'));
+  if(!D.mobility) add('Mobility now',$('d-mob-chips'));
+  if(!D.func) add('Function vs baseline',$('d-func-chips'));
+  else {
+    if(autoWorse() && D.func!=='Below baseline') add('Mobility worse than baseline: choose "Below baseline"',$('d-func-chips'));
+    if(D.func==='Below baseline'){
+      if(!$('d-func-reason').value.trim()) add('Reason / plan for reduced function',$('d-func-reason'));
+      if(!$('d-func-agreed').checked) add('Reduced function agreed with team',$('d-func-agreed-wrap'));
+    }
+  }
+  if(!D.skin) add('Skin at discharge',$('d-skin-chips'));
+  else if(D.skin===SKIN_D[1] && !$('d-skin-text').value.trim()) add('Describe new / worse skin marks',$('d-skin-text'));
+  if(!D.dest) add('Destination',$('d-dest-chips'));
+  if(!D.trans) add('Transport',$('d-trans-chips'));
+  if(!D.follow.length) add('Follow-up (or None needed)',$('d-follow-chips'));
+  DCHECKLIST.forEach(it=>{
+    const st=D.chk[it.id], row=$('d-row-'+it.id);
+    if(!st) add(it.t,row);
+    else if(st==='na' && !(D.na[it.id]||'').trim()) add('N/A reason: '+it.t,row);
+  });
+  if(!$('d-nurse').value.trim()) add('Nurse name / role',$('d-nurse'));
+  if(dfreeTexts().some(t=>CHI_LIKE.test(t))) add('Remove CHI-style number from free text',$('d-plan'));
+  return m;
+}
+function dmark(m){ document.querySelectorAll('.errbox').forEach(e=>e.classList.remove('errbox')); m.forEach(x=>x.el&&x.el.classList.add('errbox')); }
+function updateDTodo(){ const n=dmissing().length, b=$('dtodo'); b.textContent = n ? n+' outstanding' : 'Nothing outstanding ✓'; b.classList.toggle('ok',!n); }
+function updateDDone(){ $('ddone-badge').textContent = D.completedAt ? 'Completed '+new Date(D.completedAt).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) : ''; }
+function dGotoFirst(){ const m=dmissing(); dmark(m); if(m.length) m[0].el.scrollIntoView({behavior:'smooth',block:'center'}); else toast('Everything is complete'); }
+function dMarkComplete(){
+  const m=dmissing(); dmark(m);
+  if(m.length){ toast(m.length+' outstanding: '+m.slice(0,3).map(x=>x.label).join(', ')+(m.length>3?'...':'')); m[0].el.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  D.completedAt=Date.now(); updateDDone(); dSave(false);
+  toast('Discharge marked complete. Print and file when you can.');
+}
+function dHandlePrint(){
+  const m=dmissing(); dmark(m);
+  if(m.length){ toast(m.length+' outstanding: '+m.slice(0,3).map(x=>x.label).join(', ')+(m.length>3?'...':'')); m[0].el.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  dSave(false); buildPrintD(); window.print();
+}
+
+/* ---------- discharge printout ---------- */
+function buildPrintD(){
+  const v=id=>$(id).value.trim();
+  const adm=baselineAdm(), A=adm?admInfo(adm):null, miss=dmissing();
+  const banner = miss.length
+    ? `<div class="bad" style="border:3px solid #b91c1c;padding:4px;text-align:center;font-size:14pt;margin-bottom:5px">INCOMPLETE - NOT VALID FOR FILING<div style="font-size:8.5pt;font-weight:600">Outstanding: ${esc(miss.map(x=>x.label).join('; '))}</div></div>` : '';
+  const doneTxt = D.completedAt ? 'Completed '+new Date(D.completedAt).toLocaleString('en-GB',{dateStyle:'medium',timeStyle:'short'}) : '<span class="bad">Not marked complete</span>';
+  const dobs=obsRow(D.unable,v,'d-obs-'), aobs=adm?obsRow(adm.S.unable,id=>adm.f[id],'obs-'):null;
+  const cell=t=>t==='UNABLE'?'<span class="bad">UNABLE</span>':esc(t);
+  let los='-';
+  if(adm && v('d-time') && adm.f['admission-time']){ const ms=new Date(v('d-time'))-new Date(adm.f['admission-time']); if(ms>=0){ const h=Math.round(ms/3600000); los=Math.floor(h/24)+' d '+(h%24)+' h'; } }
+  const dfat = D.unable.includes('fourat') ? '<span class="bad">NOT PERFORMED</span>'
+    : (dfatAnswered()<4 ? '<span class="bad">INCOMPLETE</span>' : (DECISION_SUPPORT ? dfatTotal()+' / 12 &mdash; '+esc(fatInterp(dfatTotal()).text)+(dDelirium()?(' <b class="bad">(medical team confirmed: '+($('d-delir-ack').checked?'YES':'NO')+')</b>'):'') : 'Recorded'));
+  const fatDetail = (!D.unable.includes('fourat') && dfatAnswered()===4) ? `<div style="font-size:7pt">4AT answers: ${FOURAT.map(it=>esc(it.title.replace(/^\[\d\]\s*/,''))+': '+esc(it.opts[D.at[it.k]][0])).join('; ')}</div>` : '';
+  const funcTxt = D.func ? esc(D.func)+(D.func==='Below baseline'?` &mdash; ${esc(v('d-func-reason')||'-')} <br>Agreed with team: ${$('d-func-agreed').checked?'&#9745; Yes':'<span class="bad">&#9744; NO</span>'}`:'') : '<span class="bad">NOT RECORDED</span>';
+  const skinTxt = D.skin ? esc(D.skin)+(D.skin===SKIN_D[1]?': '+esc(v('d-skin-text')||'-'):'') : '<span class="bad">NOT RECORDED</span>';
+  const baseMob = adm ? A.mobility : (D.baseMob||'-');
+  const unableLine = D.unable.length ? `<p class="bad">Unable / not performed: ${esc(D.unable.map(k=>k==='fourat'?'4AT':(OBS.find(o=>o.key===k)||{label:k}).label).join(', '))}. Reason: ${esc(v('d-unable-reason')||'-')}</p>` : '';
+  const items = DCHECKLIST.map(it=>{ const st=D.chk[it.id];
+    return [esc(it.t), st==='done'?'&#9745; Done' : st==='na'?'N/A: '+esc(D.na[it.id]||'-') : '<span class="bad">&#9744; NOT DONE</span>']; });
+  let chk=''; for(let i=0;i<items.length;i+=2){
+    chk+=`<tr><td style="width:31%">${items[i][0]}</td><td style="width:19%">${items[i][1]}</td>`+(items[i+1]?`<td style="width:31%">${items[i+1][0]}</td><td style="width:19%">${items[i+1][1]}</td>`:'<td></td><td></td>')+'</tr>'; }
+  $('print-sheet').innerHTML=`
+    ${banner}<table class="pg"><thead><tr><td>
+    <div class="top"><div><h1>AFU Discharge Safety Check</h1>
+      <div style="font-size:8pt">Acute Frailty Unit &bull; Confidential patient record &bull; Printed ${esc(new Date().toLocaleString('en-GB'))} &bull; ${doneTxt}</div></div>
+      <div class="sticker">AFFIX PATIENT ADDRESSOGRAPH STICKER HERE<div style="font-weight:400;font-size:7pt">(CHI / name / DOB / consultant)</div></div></div>
+    </td></tr></thead><tbody><tr><td>
+    <table><tr><th>Bed</th><th>Admitted</th><th>Discharged</th><th>Length of stay</th><th>Wristband checked vs sticker</th></tr>
+      <tr><td class="big">${D.bed==null?'-':D.bed}</td><td>${adm?esc(fmtDT(A.time)):'<span class="bad">No stored record</span>'}</td><td>${esc(fmtDT(v('d-time')))}</td><td>${esc(los)}</td>
+      <td class="${$('d-chk-id').checked?'':'bad'}">${$('d-chk-id').checked?'&#9745; Done':'&#9744; NOT DONE'}</td></tr></table>
+    <p style="font-size:7.5pt">${adm?'Baseline: admission record held on this tablet'+($('d-chk-base').checked?' (confirmed as this patient)':' <b class="bad">(patient match NOT confirmed)</b>')+'.':'No admission record on this tablet: baseline mobility copied from the admission sheet in the notes'+($('d-chk-base').checked?' (acknowledged).':' <b class="bad">(NOT acknowledged)</b>.')}</p>
+    <h2>Then vs now</h2>
+    <table><tr><th style="width:20%"></th><th style="width:38%">Admission (baseline)</th><th>Discharge</th></tr>
+      <tr><th>Mobility</th><td>${esc(baseMob)}</td><td>${esc(D.mobility||'-')}</td></tr>
+      <tr><th>Function vs baseline</th><td>-</td><td>${funcTxt}</td></tr>
+      <tr><th>Frailty (CFS)</th><td>${adm?esc(A.cfs):'-'}</td><td>Baseline score, not re-scored</td></tr>
+      <tr><th>4AT delirium screen</th><td>${adm?esc(A.fat):'-'}</td><td>${dfat}</td></tr>
+      <tr><th>Skin</th><td>${adm?esc(A.skin):'See admission sheet'}</td><td>${skinTxt}</td></tr></table>
+    ${fatDetail}
+    <h2>Observations</h2>
+    <table><tr><th style="width:12%"></th>${OBS_HDR.map(h=>`<th>${h}</th>`).join('')}</tr>
+      ${aobs?`<tr><th>Admission</th>${aobs.map(t=>`<td>${cell(t)}</td>`).join('')}</tr>`:''}
+      <tr><th>Discharge</th>${dobs.map(t=>`<td>${cell(t)}</td>`).join('')}</tr></table>
+    ${unableLine}
+    <h2>Destination and follow-up</h2>
+    <table><tr><th style="width:14%">Destination</th><td>${esc(D.dest||'-')}</td><th style="width:12%">Transport</th><td>${esc(D.trans||'-')}</td></tr>
+      <tr><th>Follow-up</th><td colspan="3">${esc(D.follow.join(', ')||'-')}</td></tr>
+      <tr><th>Notes</th><td colspan="3">${esc(v('d-plan')||'-')}</td></tr></table>
+    <h2>Safe discharge checklist</h2>
+    <table>${chk}</table>
+    <div style="font-size:6.5pt">Checklist version: ${esc(DISCHARGE_CHECKLIST_VERSION)}. Clinical Frailty Scale &copy; Rockwood et al., Dalhousie University.</div>
+    <h2>Sign-off</h2>
+    <table><tr><th style="width:22%">Discharging nurse</th><td>${esc(v('d-nurse')||'-')}</td><th style="width:12%">Signature</th><td style="width:30%;height:9mm"></td></tr></table>
+    </td></tr></tbody></table>`;
+}
+
+/* ================= init ================= */
+FIELDS.concat(ALLCHECKS).forEach(id=>{ $(id).addEventListener('input',changed); $(id).addEventListener('change',changed); });
+$('admission-time').value = nowLocal();
+initUnable();
+loadDraft();
+renderChips(); renderPins(); applyUnable(); sugarFlag(); updateFrailSummary(); updateTodo(); updateDone();
+DFIELDS.concat(DCHECKS).forEach(id=>{ $(id).addEventListener('input',dchanged); $(id).addEventListener('change',dchanged); });
+dinitUnable(); resetDFields(); loadRecs(); showView('home');
+</script>
+</body>
+</html>
